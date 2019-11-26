@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audio Workstation</title>
+<script src=".\script.js"></script>
+<script src=".\mode2.js"></script>
+<style type="text/css">
+	tr{height: 1em;}
+</style>
+<script type="text/javascript">
+	function changeRowHeight(height) {
+		document.styleSheets[0].cssRules[0].style.height = height + "em"
+	}
+</script>
+<style type="text/css">
+	@media print {
+		button {visibility: hidden;}
+		.noprint {display: none;}
+	}
+	table {top:0; border-spacing: 0; margin:0 2em; display: inline; }
+	td:not(.m){width: 0.3em; margin: 0.1em;}
+	.t,.t1,.t2,.t3,.t4{border-style: solid none none none; border-width: 0.1em;}
+	.t1{border-color: yellow;}
+	.t2{border-color: green;}
+	.t3{border-color: silver;}
+	.t4{border-color: red;}
+	.t{border-color: black;}
+	.m{border: 0.1em red; border-style: none none none solid; width: 0; padding: 0;}
+	.b{background-color: grey;}
+	.n{background-color: black; outline: 0.1em solid whitesmoke; outline-offset: -0.05em;}
+
+	.output-popup {
+		display: block;
+		position: fixed;
+		width: 80%;
+		height: 80%;
+		top: 10%;
+		left: 10%;
+		outline: 3px solid black;
+		background-color: white;
+		z-index: 1;
+	}
+	.output-popup textarea {
+		width: 100%; height: 95%;
+	}
+	.output-popup button {
+		background-color: white;
+		color: red;
+		display: inline;
+		width: 5%; height: 5%; float: right;
+	}
+</style>
+</head>
+<body>
+<div class="noprint">
+	<pre>
+	How to enter a numeric score:
+	Notes are represented by numbers 1-7 and rests are the number 0
+	Example 1 is the root note
+
+	You can shift notes octave higher using ^ and lower using v. 
+	Example 1^ is one octave above 1
+
+	You can also shift notes higher and lower using # as sharp and b as flat.
+	Example 1# is one semitone above 1
+
+	Underscores are entered before the note and dots are entered after the note.
+	Example __1 is a quarter of the time of 1
+	Example 1. is one and a half the time of 1
+
+	Triplet notes are entered using the letter t before the note
+	Example t1t2t3
+
+	Slurs and ties are represented by the + symbol
+	</pre>
+</div>
+<button onclick="clear()">Clear</button>
+<button onclick="outputPopup(JSON.stringify({leftwidth,rightwidth,time,notes}))">Get JSON</button>
+<button onclick="parseNumericScore(window.prompt('Enter numeric score'));drawNotes();">Enter Numeric Score</button>
+<script type="text/javascript">
+	function outputPopup(text) {
+		var popupDiv = document.createElement("div")
+		var popupText = document.createElement("textarea")
+		var closeButton = document.createElement("button")
+		closeButton.textContent = "X"
+		closeButton.onclick = function(){document.body.removeChild(popupDiv)}
+		popupText.textContent = text;
+		popupText.readonly = true;
+
+		popupDiv.textContent = "JSON:"
+		popupDiv.appendChild(closeButton)
+		popupDiv.appendChild(popupText);
+		popupDiv.className = "output-popup"
+		document.body.appendChild(popupDiv);
+	}
+</script>
+<script type="text/javascript">
+	var outputContainer = document.createElement("div");
+	document.body.appendChild(outputContainer);
+	drawNotes();
+</script>
+</body>
+
