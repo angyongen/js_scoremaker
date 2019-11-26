@@ -6,11 +6,11 @@
 <script src=".\script.js"></script>
 <script src=".\mode2.js"></script>
 <style type="text/css">
-	tr{height: 1em;}
+	tr{height: 2em;}
 </style>
 <script type="text/javascript">
 	function changeRowHeight(height) {
-		document.styleSheets[0].cssRules[0].style.height = height + "em"
+		document.styleSheets[0].cssRules[0].style.height = 2* height + "em"
 	}
 </script>
 <style type="text/css">
@@ -18,7 +18,8 @@
 		button {visibility: hidden;}
 		.noprint {display: none;}
 	}
-	table {top:0; border-spacing: 0; margin:0 2em; display: inline; }
+	table {top:0; border-spacing: 0; margin:0 2em; display: inline; position: relative;}
+	.txt{position: absolute; margin-top: -1em;}
 	td:not(.m){width: 0.3em; margin: 0.1em;}
 	.t,.t1,.t2,.t3,.t4{border-style: solid none none none; border-width: 0.1em;}
 	.t1{border-color: yellow;}
@@ -75,7 +76,7 @@
 	Slurs and ties are represented by the + symbol
 	</pre>
 </div>
-<button onclick="clear()">Clear</button>
+<button onclick="clearNotes()">Clear</button>
 <button onclick="outputPopup(JSON.stringify({leftwidth,rightwidth,time,notes}))">Get JSON</button>
 <button onclick="parseNumericScore(window.prompt('Enter numeric score'));drawNotes();">Enter Numeric Score</button>
 <script type="text/javascript">

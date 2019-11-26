@@ -10,10 +10,11 @@
 	var notesToAdd = [];
 	var notes = [];
 	var bars = {};
+	var texts = {}
 
 	var containerHeights = [];
 
-	function clear() {
+	function clearNotes() {
 		beatLength = 1;
 		leftwidth = 0;
 		rightwidth = 0;
@@ -21,6 +22,8 @@
 		notesToAdd = [];
 		notes = [];
 		bars = {};
+		texts = {}
+		drawNotes();
 	}
 
 	function isBlackKey(note) {
@@ -43,7 +46,7 @@
 		}	
 	}
 	function addRelativeKey(number, duration, advanceDuration) {
-		if (number == null) {
+		if (number === null) {
 			addMidiNoteSimple(null, duration, advanceDuration);
 		} else {
 			addMidiNoteSimple(number+keyOffset, duration, advanceDuration)
@@ -51,8 +54,9 @@
 	}
 
 	function parseNumericScore(numericScore) {
-		var barOffsets = {};
-		var containerHeightsOffsets = {};
+		var barsToAdd = [];
+		var containerHeightsToAdd = [];
+		var textsToAdd = [];
 		var currentNote = "";
 		var currentNoteDuration = 1;
 		var savedNote = "";
@@ -84,10 +88,20 @@
 				currentNoteDuration = 1;
 			}
 		}
+		var getOffset = function() {
+			var offset = 0
+			if (savedNote !== "") {
+				offset += savedNoteDuration;
+			}
+			if (currentNote !== "") {
+				offset += currentNoteDuration;
+			}
+			return offset;
+		}
 		for (var i = 0; i < numericScore.length; i++) {
 			var char = numericScore[i]
 			switch (char) {
-				//before note characters set pushNext false
+				//before note characters set pushNext false after pushIfAvailable
 				case '[':
 				pushIfAvailable();
 				chord = true;
@@ -123,6 +137,7 @@
 				case ']':
 				chord = false;
 				pushNext = true;
+				break;
 				case '-':
 				currentNoteDuration += 1;
 				pushNext = true;
@@ -138,6 +153,7 @@
 				case 'v':
 				currentNote -= 12;
 				pushNext = true;
+				break;
 				case '#':
 				currentNote += 1;
 				pushNext = true;
@@ -146,30 +162,24 @@
 				currentNote -= 1;
 				pushNext = true;
 				break;
-
+				//misc symbols
+				case '|':
+				barsToAdd.push({location:notesToAdd.length, offset:getOffset()});
+				break;
+				case '/':
+				containerHeightsToAdd.push({location:notesToAdd.length, offset:getOffset()});
+				break;
+				case '\"':
+				var text = ""
+				while (((char = numericScore[++i]) != '\"') && i < numericScore.length) {
+					text += char;
+				}
+				textsToAdd.push({location:notesToAdd.length, offset:getOffset(), text:text})
 				default:
 				if ('01234567'.includes(char)) {
 					pushIfAvailable();
 					currentNote = [null,0,2,4,5,7,9,11][parseInt(char)]
 					pushNext = true;
-				}
-				if (char == "|") {
-					barOffsets[notesToAdd.length] = 0;
-					if (savedNote !== "") {
-						barOffsets[notesToAdd.length] += savedNoteDuration;
-					}
-					if (currentNote !== "") {
-						barOffsets[notesToAdd.length] += currentNoteDuration;
-					}
-				}
-				if (char == "/") {
-						containerHeightsOffsets[notesToAdd.length] = 0;
-					if (savedNote !== "") {
-						containerHeightsOffsets[notesToAdd.length] += savedNoteDuration;
-					}
-					if (currentNote !== "") {
-						containerHeightsOffsets[notesToAdd.length] += currentNoteDuration;
-					}
 				}
 			}
 		}
@@ -179,19 +189,28 @@
 		var totalContainerHeight = time;
 		notes = [];
 		time = 0;
+		var barsToAdd_i = 0;
+		var containerHeightsToAdd_i = 0;
+		var textsToAdd_i = 0;
 		for (var i = 0; i < notesToAdd.length; i++) {
-			if (barOffsets[i] != null) {
-				bars[time + (barOffsets[i]*beatLength)] = true;
+			while (barsToAdd[barsToAdd_i] && (barsToAdd[barsToAdd_i].location == i)) {
+				bars[time + (barsToAdd[barsToAdd_i].offset*beatLength)] = true;
+				++barsToAdd_i;
 			}
-			if (containerHeightsOffsets[i] != null) {
+			while (containerHeightsToAdd[containerHeightsToAdd_i] && (containerHeightsToAdd[containerHeightsToAdd_i].location == i)) {
 				var lastContainerHeight = totalContainerHeight
-				totalContainerHeight = containerHeightsOffsets[i]*beatLength + time
+				totalContainerHeight = containerHeightsToAdd[containerHeightsToAdd_i]*beatLength + time
 				containerHeights.push(totalContainerHeight - lastContainerHeight)
+				++containerHeightsToAdd_i;
 			}
-			length += notesToAdd[i].duration
+			while (textsToAdd[textsToAdd_i] && (textsToAdd[textsToAdd_i].location == i)) {
+				texts[time + (textsToAdd[textsToAdd_i].offset*beatLength)] = textsToAdd[textsToAdd_i].text;
+				++textsToAdd_i;
+			}
 			if (notesToAdd[i].chord) {
 				addRelativeKey(notesToAdd[i].note, notesToAdd[i].duration * beatLength, false)
 			} else {
+				length += notesToAdd[i].duration
 				addRelativeKey(notesToAdd[i].note, notesToAdd[i].duration * beatLength, true)
 			}
 		}
@@ -319,6 +338,13 @@
 					var m = row.insertCell()
 					m.className = "m"
 				}
+			}
+			if (texts[t]) {
+				var c = row.insertCell()
+				var txt = document.createElement("pre")
+				txt.className = "txt"
+				txt.textContent = texts[t]
+				c.appendChild(txt)
 			}
 			needNewTable = false;
 		}
