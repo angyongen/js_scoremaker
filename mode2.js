@@ -27,26 +27,26 @@
 		return [false,true,false,true,false,false,true,false,true,false,true,false][note % 12]
 	}
 
-	function addMidiNoteSimple(note, duration) {
+	function addMidiNoteSimple(note, duration, advanceDuration) { 
 		if (!duration) duration = 1;
 		if (duration > 0) {
 			if (note == null) {
-				time += duration
+				if (advanceDuration) time += duration
 			} else {
 				var noteoffset = (note - middleNote);
 				leftwidth = Math.max(leftwidth, -noteoffset);
 				rightwidth = Math.max(rightwidth, noteoffset + 1);
 				if (!notes[time]) notes[time] = {}
 				notes[time][note] = duration
-				time += duration;
+				if (advanceDuration) time += duration
 			}
 		}	
 	}
-	function addKeyWithOffset(number, duration) {
+	function addRelativeKey(number, duration, advanceDuration) {
 		if (number == null) {
-			addMidiNoteSimple(null, duration);
+			addMidiNoteSimple(null, duration, advanceDuration);
 		} else {
-			addMidiNoteSimple(number+keyOffset, duration)
+			addMidiNoteSimple(number+keyOffset, duration, advanceDuration)
 		}
 	}
 
@@ -58,9 +58,10 @@
 		var savedNote = "";
 		var savedNoteDuration = 0;
 		var pushNext = false;
+		var chord = false;
 		var push = function(note, duration) {
 			console.log("note:"+note,"duration:"+duration)
-			notesToAdd.push({note:note, duration:duration});
+			notesToAdd.push({note:note, duration:duration, chord:chord});
 			var fraction = toFraction(duration)
 			beatLength = LCM(beatLength, fraction[1]); //everything is multiplied by beatLength to get all whole numbers
 			pushNext = false;
@@ -87,6 +88,9 @@
 			var char = numericScore[i]
 			switch (char) {
 				//before note characters set pushNext false
+				case '[':
+				pushIfAvailable();
+				chord = true;
 				case '_':
 				pushIfAvailable();
 				currentNoteDuration /= 2;
@@ -116,6 +120,9 @@
 				pushNext = false;
 				break;
 				//after note characters set pushNext true
+				case ']':
+				chord = false;
+				pushNext = true;
 				case '-':
 				currentNoteDuration += 1;
 				pushNext = true;
@@ -139,6 +146,7 @@
 				currentNote -= 1;
 				pushNext = true;
 				break;
+
 				default:
 				if ('01234567'.includes(char)) {
 					pushIfAvailable();
@@ -168,18 +176,24 @@
 		pushIfAvailable();
 		console.log("beatLength:" + beatLength)
 		var length = 0;
-		var lastContainerHeight = time;
+		var totalContainerHeight = time;
+		notes = [];
+		time = 0;
 		for (var i = 0; i < notesToAdd.length; i++) {
-			notesToAdd[i].duration *= beatLength;
 			if (barOffsets[i] != null) {
 				bars[time + (barOffsets[i]*beatLength)] = true;
 			}
 			if (containerHeightsOffsets[i] != null) {
-				containerHeights.push(time + (containerHeightsOffsets[i]*beatLength) - lastContainerHeight)
-				lastContainerHeight = time;
+				var lastContainerHeight = totalContainerHeight
+				totalContainerHeight = containerHeightsOffsets[i]*beatLength + time
+				containerHeights.push(totalContainerHeight - lastContainerHeight)
 			}
 			length += notesToAdd[i].duration
-			addKeyWithOffset(notesToAdd[i].note, notesToAdd[i].duration)
+			if (notesToAdd[i].chord) {
+				addRelativeKey(notesToAdd[i].note, notesToAdd[i].duration * beatLength, false)
+			} else {
+				addRelativeKey(notesToAdd[i].note, notesToAdd[i].duration * beatLength, true)
+			}
 		}
 		console.log("length:"+length)
 	}
