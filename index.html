@@ -5,7 +5,6 @@
 <title>Audio Workstation</title>
 <script src=".\script.js"></script>
 <script src=".\mode2.js"></script>
-<script src=".\analytics.js"></script>
 <style type="text/css">
 	tr{height:2em;}
 </style>
@@ -68,10 +67,18 @@ Text can be inserted using quotes at any time. (Example: "text")
 	var outputContainer = document.createElement("div");
 	document.body.appendChild(outputContainer);
 
-	var url = new URL(window.location.href);
-	var numericScore = decodeURI(url.searchParams.get("numericScore"))
-	if (numericScore) parseNumericScore(numericScore)
+	var numericScore = window.location.hash.substr(1)//window.location.href
+	//var url = new URL(window.location.href);
+	//var numericScore = decodeURI(url.searchParams.get("numericScore"))
+	if (numericScore) {
+		parseNumericScore(numericScore)
+	}
+	if (document.location.hash) {
+		document.location.hash = ""
+	}
 	drawNotes();
+	//window.location.replace(url.pathname)
 </script>
+<script src=".\analytics.js"></script>
 </body>
 
