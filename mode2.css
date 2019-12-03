@@ -1,7 +1,6 @@
 	table {top:0; border-spacing: 0; margin:0 1em; display: inline; }
-	tr{position: relative;}
-	td{padding: 0;}
-	.txt{top:0; margin:0; font-size:0.9em;/*margin-top: -1em;*/}
+	td{padding: 0; position: relative;}
+	.txt{position: absolute; top:0; margin:0; font-size:0.9em;/*margin-top: -1em;*/}
 	td:not(.m){width: 0.3em; margin: 0.1em;}
 	.t,.t1,.t2,.t3,.t4{border-style: solid none none none; border-width: 0.1em;}
 	.t1{border-color: black;}
