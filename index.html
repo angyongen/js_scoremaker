@@ -67,7 +67,7 @@ Text can be inserted using quotes at any time. (Example: "text")
 	var outputContainer = document.createElement("div");
 	document.body.appendChild(outputContainer);
 
-	var numericScore = window.location.hash.substr(1)//window.location.href
+	var numericScore = decodeURI(window.location.hash.substr(1))
 	//var url = new URL(window.location.href);
 	//var numericScore = decodeURI(url.searchParams.get("numericScore"))
 	if (numericScore) {
