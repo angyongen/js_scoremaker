@@ -1,0 +1,38 @@
+	table {top:0; border-spacing: 0; margin:0 1em; display: inline; }
+	tr{position: relative;}
+	td{padding: 0;}
+	.txt{position: absolute; top:0; margin:0; font-size:0.9em;/*margin-top: -1em;*/}
+	td:not(.m){width: 0.3em; margin: 0.1em;}
+	.t,.t1,.t2,.t3,.t4{border-style: solid none none none; border-width: 0.1em;}
+	.t1{border-color: black;}
+	.t2{border-color: green;}
+	.t3{border-color: black;}
+	.t4{border-color: red;}
+	.t{border-color: yellow;}
+	.m{border: 0.1em red; border-style: none none none solid; width: 0; padding: 0;}
+	.b{background-color: grey;}
+	.n{background-color: black; outline: 0.1em solid silver /*whitesmoke*/; outline-offset: -0.05em;}
+
+	.output-popup {
+		display: block;
+		position: fixed;
+		width: 100%; height: 100%;
+		top: 0; left: 0;
+		z-index: 1;
+	}
+	.output-popup div {
+		position: fixed;
+		width: 80%; height: 80%;
+		top: 10%; left: 10%;
+		outline: 3px solid black;
+		background-color: white;
+	}
+	.output-popup div textarea {
+		width: 100%; height: 95%;
+	}
+	.output-popup div button {
+		background-color: white;
+		color: red;
+		display: inline;
+		width: 5%; height: 5%; float: right;
+	}

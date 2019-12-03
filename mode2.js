@@ -7,12 +7,16 @@
 	var leftwidth = 0;
 	var rightwidth = 0;
 	var time = 0;
+
 	var notesToAdd = [];
+	var barsToAdd = [];
+	var containerHeightsToAdd = [];
+	var textsToAdd = [];
+
 	var notes = [];
 	var bars = {};
-	var texts = {}
-
 	var containerHeights = [];
+	var texts = {}
 
 	function clearNotes() {
 		beatLength = 1;
@@ -22,8 +26,13 @@
 		notesToAdd = [];
 		notes = [];
 		bars = {};
+		containerHeights = [];
 		texts = {}
 		drawNotes();
+	}
+
+	function getJSON() {
+		return JSON.stringify({keyOffset,middleNote,beatLength,leftwidth,rightwidth,time,notes,bars,containerHeights,texts})
 	}
 
 	function isBlackKey(note) {
@@ -53,10 +62,53 @@
 		}
 	}
 
+	function adjust_add_notes(notesToAdd, barsToAdd, containerHeightsToAdd, textsToAdd) {
+		//console.log("beatLength:" + beatLength)
+		notes = [];
+		bars = [];
+		texts = [];
+		containerHeights = [];
+		time = 0;
+		var actualtotalLength = 0;
+		var adjustedtotalLength = 0;
+		var totalContainerHeight = 0;
+		var barsToAdd_i = 0;
+		var containerHeightsToAdd_i = 0;
+		var textsToAdd_i = 0;
+		for (var i = 0; i < notesToAdd.length; i++) {
+			while (barsToAdd[barsToAdd_i] && (barsToAdd[barsToAdd_i].location == i)) {
+				bars[time + (barsToAdd[barsToAdd_i].offset*beatLength)] = true;
+				++barsToAdd_i;
+			}
+			while (containerHeightsToAdd[containerHeightsToAdd_i] && (containerHeightsToAdd[containerHeightsToAdd_i].location == i)) {
+				var lastContainerHeight = totalContainerHeight
+				totalContainerHeight = containerHeightsToAdd[containerHeightsToAdd_i].offset*beatLength + time
+				containerHeights.push(totalContainerHeight - lastContainerHeight)
+				++containerHeightsToAdd_i;
+			}
+			while (textsToAdd[textsToAdd_i] && (textsToAdd[textsToAdd_i].location == i)) {
+				texts[time + (textsToAdd[textsToAdd_i].offset*beatLength)] = textsToAdd[textsToAdd_i].text;
+				++textsToAdd_i;
+			}
+			var adjustedNoteLength = notesToAdd[i].duration * beatLength
+			if (notesToAdd[i].chord) {
+				addRelativeKey(notesToAdd[i].note, adjustedNoteLength, false)
+			} else {
+				actualtotalLength += notesToAdd[i].duration
+				adjustedtotalLength += adjustedNoteLength
+				addRelativeKey(notesToAdd[i].note, adjustedNoteLength, true)
+			}
+		}
+		console.log("length:"+actualtotalLength)
+		console.log("adjustedLength:"+adjustedtotalLength)
+	}
+
 	function parseNumericScore(numericScore) {
-		var barsToAdd = [];
-		var containerHeightsToAdd = [];
-		var textsToAdd = [];
+		//notesToAdd = [];
+		//barsToAdd = [];
+		//containerHeightsToAdd = [];
+		//textsToAdd = [];
+
 		var currentNote = "";
 		var currentNoteDuration = 1;
 		var savedNote = "";
@@ -64,7 +116,7 @@
 		var pushNext = false;
 		var chord = false;
 		var push = function(note, duration) {
-			console.log("note:"+note,"duration:"+duration)
+			//console.log("note:"+note,"duration:"+duration)
 			notesToAdd.push({note:note, duration:duration, chord:chord});
 			var fraction = toFraction(duration)
 			beatLength = LCM(beatLength, fraction[1]); //everything is multiplied by beatLength to get all whole numbers
@@ -184,37 +236,7 @@
 			}
 		}
 		pushIfAvailable();
-		console.log("beatLength:" + beatLength)
-		var length = 0;
-		var totalContainerHeight = time;
-		notes = [];
-		time = 0;
-		var barsToAdd_i = 0;
-		var containerHeightsToAdd_i = 0;
-		var textsToAdd_i = 0;
-		for (var i = 0; i < notesToAdd.length; i++) {
-			while (barsToAdd[barsToAdd_i] && (barsToAdd[barsToAdd_i].location == i)) {
-				bars[time + (barsToAdd[barsToAdd_i].offset*beatLength)] = true;
-				++barsToAdd_i;
-			}
-			while (containerHeightsToAdd[containerHeightsToAdd_i] && (containerHeightsToAdd[containerHeightsToAdd_i].location == i)) {
-				var lastContainerHeight = totalContainerHeight
-				totalContainerHeight = containerHeightsToAdd[containerHeightsToAdd_i]*beatLength + time
-				containerHeights.push(totalContainerHeight - lastContainerHeight)
-				++containerHeightsToAdd_i;
-			}
-			while (textsToAdd[textsToAdd_i] && (textsToAdd[textsToAdd_i].location == i)) {
-				texts[time + (textsToAdd[textsToAdd_i].offset*beatLength)] = textsToAdd[textsToAdd_i].text;
-				++textsToAdd_i;
-			}
-			if (notesToAdd[i].chord) {
-				addRelativeKey(notesToAdd[i].note, notesToAdd[i].duration * beatLength, false)
-			} else {
-				length += notesToAdd[i].duration
-				addRelativeKey(notesToAdd[i].note, notesToAdd[i].duration * beatLength, true)
-			}
-		}
-		console.log("length:"+length)
+		adjust_add_notes(notesToAdd, barsToAdd, containerHeightsToAdd, textsToAdd);
 	}
 
 
@@ -277,7 +299,7 @@
 				var duration = 0;
 				if (instant) duration = instant[representedNote]
 				if (heldNotes[representedNote]) {
-					if (--heldNotes[representedNote] == 1) delete heldNotes[representedNote];
+					if (--heldNotes[representedNote] <= 1) delete heldNotes[representedNote];
 					if (needNewTable) {
 						var c = row.insertCell()
 						c.className = "n"
