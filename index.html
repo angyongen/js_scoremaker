@@ -23,7 +23,9 @@
 </head>
 <body>
 <div class="noprint">
-<pre>
+<div class="output-popup" id="numericScoreHelp" style="display:none"><div>
+	Numeric score help:
+<button onclick="document.getElementById('numericScoreHelp').style.display='none'">X</button><pre>
 How to enter a numeric score:
 
 Notes are represented by numbers 1-7 and rests are the number 0 
@@ -38,11 +40,12 @@ Slurs and ties are represented by the + symbol
 
 A bar is represented by | and a break is /
 Text can be inserted using quotes at any time. (Example: "text")
-</pre>
-</div>
+</pre></div></div>
 <button onclick="clearNotes()">Clear</button>
 <button onclick="outputPopup(getJSON());">Get JSON</button>
 <button onclick="parseNumericScore(window.prompt('Enter numeric score'));drawNotes();">Enter Numeric Score</button>
+<button onclick="document.getElementById('numericScoreHelp').style.display='block'">Numeric score help</button>
+</div>
 <script type="text/javascript">
 	function outputPopup(text) {
 		var popupContainerDiv = document.createElement("div")

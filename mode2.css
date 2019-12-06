@@ -25,13 +25,21 @@
 		top: 10%; left: 10%;
 		outline: 3px solid black;
 		background-color: white;
-	}
-	.output-popup div textarea {
-		width: 100%; height: 95%;
+		padding: 1%
 	}
 	.output-popup div button {
 		background-color: white;
 		color: red;
 		display: inline;
 		width: 5%; height: 5%; float: right;
+		text-align: center;
+	}
+	.output-popup div textarea {
+		width: 100%; height: 95%;
+	}
+	.output-popup div pre {
+		top: 5%;
+		height: 95%;
+		width: 100%;
+		overflow: scroll;
 	}

@@ -8,15 +8,18 @@
 	var rightwidth = 0;
 	var time = 0;
 
+	var notes = []; //this is an array of time instance objects(key-value pairs). the key is the note and value is time held.
+	var bars = {};
+	var containerHeights = [];
+	var texts = {};
+	var chords = {};
+
 	var notesToAdd = [];
 	var barsToAdd = [];
 	var containerHeightsToAdd = [];
 	var textsToAdd = [];
+	var chordsToAdd = [];
 
-	var notes = [];
-	var bars = {};
-	var containerHeights = [];
-	var texts = {}
 
 	function clearNotes() {
 		beatLength = 1;
@@ -75,23 +78,32 @@
 		var barsToAdd_i = 0;
 		var containerHeightsToAdd_i = 0;
 		var textsToAdd_i = 0;
+		var chordsToAdd_i = 0;
+		var bTA;
+		var cHTA;
+		var tTA;
+		var cTA;
 		for (var i = 0; i < notesToAdd.length; i++) {
-			while (barsToAdd[barsToAdd_i] && (barsToAdd[barsToAdd_i].location == i)) {
-				bars[time + (barsToAdd[barsToAdd_i].offset*beatLength)] = true;
+			while ((bTA = barsToAdd[barsToAdd_i]) && (bTA.location == i)) {
+				bars[time + (bTA.offset*beatLength)] = true;
 				++barsToAdd_i;
 			}
-			while (containerHeightsToAdd[containerHeightsToAdd_i] && (containerHeightsToAdd[containerHeightsToAdd_i].location == i)) {
+			while ((cHTA = containerHeightsToAdd[containerHeightsToAdd_i]) && (cHTA.location == i)) {
 				var lastContainerHeight = totalContainerHeight
-				totalContainerHeight = containerHeightsToAdd[containerHeightsToAdd_i].offset*beatLength + time
+				totalContainerHeight = cHTA.offset*beatLength + time
 				containerHeights.push(totalContainerHeight - lastContainerHeight)
 				++containerHeightsToAdd_i;
 			}
-			while (textsToAdd[textsToAdd_i] && (textsToAdd[textsToAdd_i].location == i)) {
-				texts[time + (textsToAdd[textsToAdd_i].offset*beatLength)] = textsToAdd[textsToAdd_i].text;
+			while ((tTA = textsToAdd[textsToAdd_i]) && (tTA.location == i)) {
+				texts[time + (tTA.offset*beatLength)] = tTA.text;
 				++textsToAdd_i;
 			}
+			while ((cTA = chordsToAdd[chordsToAdd_i]) && (cTA.location == i)) {
+				chords[time + (cTA.offset*beatLength)] = cTA.chord;
+				++chordsToAdd_i;
+			}
 			var adjustedNoteLength = notesToAdd[i].duration * beatLength
-			if (notesToAdd[i].chord) {
+			if (notesToAdd[i].simultaneous) {
 				addRelativeKey(notesToAdd[i].note, adjustedNoteLength, false)
 			} else {
 				actualtotalLength += notesToAdd[i].duration
@@ -114,10 +126,10 @@
 		var savedNote = "";
 		var savedNoteDuration = 0;
 		var pushNext = false;
-		var chord = false;
+		var simultaneous = false;
 		var push = function(note, duration) {
 			//console.log("note:"+note,"duration:"+duration)
-			notesToAdd.push({note:note, duration:duration, chord:chord});
+			notesToAdd.push({note:note, duration:duration, simultaneous:simultaneous});
 			var fraction = toFraction(duration)
 			beatLength = LCM(beatLength, fraction[1]); //everything is multiplied by beatLength to get all whole numbers
 			pushNext = false;
@@ -154,9 +166,9 @@
 			var char = numericScore[i]
 			switch (char) {
 				//before note characters set pushNext false after pushIfAvailable
-				case '[':
+				case '{':
 				pushIfAvailable();
-				chord = true;
+				simultaneous = true;
 				case '_':
 				pushIfAvailable();
 				currentNoteDuration /= 2;
@@ -186,8 +198,8 @@
 				pushNext = false;
 				break;
 				//after note characters set pushNext true
-				case ']':
-				chord = false;
+				case '}':
+				simultaneous = false;
 				pushNext = true;
 				break;
 				case '-':
@@ -227,6 +239,14 @@
 					text += char;
 				}
 				textsToAdd.push({location:notesToAdd.length, offset:getOffset(), text:text})
+				break;
+				case '[':
+				var chord = ""
+				while (((char = numericScore[++i]) != ']') && i < numericScore.length) {
+					chord += char;
+				}
+				chordsToAdd.push({location:notesToAdd.length, offset:getOffset(), chord:chord})
+				break;
 				default:
 				if ('01234567'.includes(char)) {
 					pushIfAvailable();
