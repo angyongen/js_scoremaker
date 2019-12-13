@@ -25,7 +25,8 @@
 <div class="noprint">
 <div class="output-popup" id="numericScoreHelp" style="display:none"><div>
 	Numeric score help:
-<button onclick="document.getElementById('numericScoreHelp').style.display='none'">X</button><pre>
+<div class="x" onclick="document.getElementById('numericScoreHelp').style.display='none'"><b></b><b></b><b></b><b></b></div>
+<pre>
 How to enter a numeric score:
 
 Notes are represented by numbers 1-7 and rests are the number 0 
@@ -40,10 +41,11 @@ Slurs and ties are represented by the + symbol
 
 A bar is represented by | and a break is /
 Text can be inserted using quotes at any time. (Example: "text")
-</pre></div></div>
+</pre>
+</div></div>
 <button onclick="clearNotes()">Clear</button>
 <button onclick="outputPopup(getJSON());">Get JSON</button>
-<button onclick="parseNumericScore(window.prompt('Enter numeric score'));drawNotes();">Enter Numeric Score</button>
+<button onclick="var n; if(n=window.prompt('Enter numeric score')) parseNumericScore(n);drawNotes();">Enter Numeric Score</button>
 <button onclick="document.getElementById('numericScoreHelp').style.display='block'">Numeric score help</button>
 </div>
 <script type="text/javascript">
@@ -52,7 +54,11 @@ Text can be inserted using quotes at any time. (Example: "text")
 		var popupDiv = document.createElement("div")
 		var popupText = document.createElement("textarea")
 		var closeButton = document.createElement("button")
-		closeButton.textContent = "X"
+		closeButton.appendChild(document.createElement("b"))
+		closeButton.appendChild(document.createElement("b"))
+		closeButton.appendChild(document.createElement("b"))
+		closeButton.appendChild(document.createElement("b"))
+		closeButton.className = "x"
 		closeButton.onclick = function(){document.body.removeChild(popupDiv)}
 		popupText.textContent = text;
 		popupText.readonly = true;

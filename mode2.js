@@ -26,11 +26,17 @@
 		leftwidth = 0;
 		rightwidth = 0;
 		time = 0;
-		notesToAdd = [];
+
 		notes = [];
 		bars = {};
 		containerHeights = [];
 		texts = {}
+
+		notesToAdd = [];
+		barsToAdd = [];
+		containerHeightsToAdd = [];
+		textsToAdd = [];
+		chordsToAdd = [];
 		drawNotes();
 	}
 
@@ -381,11 +387,18 @@
 					m.className = "m"
 				}
 			}
+			var text = ""
 			if (texts[t]) {
+				text += texts[t]
+			}
+			if (chords[t]) {
+				text += " " + chords[t]
+			}
+			if (text) {
 				var c = row.insertCell()
 				var txt = document.createElement("pre")
 				txt.className = "txt"
-				txt.textContent = texts[t]
+				txt.textContent = text
 				c.appendChild(txt)
 			}
 			needNewTable = false;

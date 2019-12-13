@@ -19,27 +19,58 @@
 		top: 0; left: 0;
 		z-index: 1;
 	}
-	.output-popup div {
+	.output-popup>div {
 		position: fixed;
 		width: 80%; height: 80%;
 		top: 10%; left: 10%;
 		outline: 3px solid black;
 		background-color: white;
-		padding: 1%
+		padding: 0.1em;
 	}
-	.output-popup div button {
-		background-color: white;
-		color: red;
-		display: inline;
-		width: 5%; height: 5%; float: right;
-		text-align: center;
+	.output-popup>div>textarea, .output-popup>div>pre{
+		width: calc(100% - 0.3em);
+		height: calc(100% - 20px - 0.3em);
 	}
-	.output-popup div textarea {
-		width: 100%; height: 95%;
+	.output-popup>div>.x {
+		position: relative;
+  	box-sizing: content-box;
+		float:right;
+		background-color: red;
+		padding: 0;
+		width: 20px; 
+		height: 20px;
+		border: 3px solid white;
+		outline: 1px solid black;
 	}
-	.output-popup div pre {
-		top: 5%;
-		height: 95%;
-		width: 100%;
+	.output-popup>div>pre {
 		overflow: scroll;
+	}
+
+	.x b {
+  	border:solid 8px rgba(255,255,255,0);
+  	position:absolute;
+		width: 0;
+		height: 0;
+		margin: auto;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+
+	.x b:nth-child(1){
+  	border-top-color:white;
+  	bottom: unset;
+	}
+	.x b:nth-child(2){
+		border-left-color:white;
+  	right: unset;
+	}
+	.x b:nth-child(3){
+		border-bottom-color:white;
+  	top: unset;
+	}
+	.x b:nth-child(4){
+		border-right-color:white;
+  	left: unset;
 	}
