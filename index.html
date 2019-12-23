@@ -45,10 +45,56 @@ Text can be inserted using quotes at any time. (Example: "text")
 </div></div>
 <button onclick="clearNotes()">Clear</button>
 <button onclick="outputPopup(getJSON());">Get JSON</button>
-<button onclick="var n; if(n=window.prompt('Enter numeric score')) parseNumericScore(n);drawNotes();">Enter Numeric Score</button>
+<button onclick="promptWrapper('Set Key',function(n){return setKey(n);})" id="keyDisplay">Key: C</button>
+<button onclick="promptWrapper('Enter numeric score',function(n){parseNumericScore(n);drawNotes();})">Enter Numeric Score</button>
 <button onclick="document.getElementById('numericScoreHelp').style.display='block'">Numeric score help</button>
+<button onclick="transposeAll(-12)">Transpose 1 octave down</button>
+<button onclick="transposeAll(12)">Transpose 1 octave up</button>
+<b id="offsetDisplay">offset 60</b>
 </div>
 <script type="text/javascript">
+	function transposeAll(offset) {
+		leftwidth = 0;
+		rightwidth = 0;
+		for (var i = notes.length - 1; i >= 0; i--) {
+			var timeInstance = notes[i]
+			if (timeInstance) {
+				var keys = Object.keys(timeInstance)
+				var newTimeInstance = {}
+				for (var j = keys.length - 1; j >= 0; j--) {
+					var note = parseInt(keys[j]) + offset
+					newTimeInstance[note] = timeInstance[keys[j]]
+					var noteoffset = (note - middleNote);
+					leftwidth = Math.max(leftwidth, -noteoffset);
+					rightwidth = Math.max(rightwidth, noteoffset + 1);
+				}
+				notes[i] = newTimeInstance
+			}
+		}
+		drawNotes();
+	}
+	function updateOffsetDisplay() {
+		document.getElementById('offsetDisplay').textContent = "offset " + keyOffset
+	}
+	function setKey(keyStr) {
+		var offset = noteLetterToOffset(keyStr[0])
+		for (var i = keyStr.length - 1; i > 0; i--) {
+			switch (keyStr[i]) {
+				case '#':
+					++offset
+				case 'b':
+					--offset
+			}
+		}
+		keyOffset = 60 + offset;
+		document.getElementById('keyDisplay').textContent = "Key: " + noteToLetter(keyOffset)
+		updateOffsetDisplay()
+		drawNotes();
+	}
+	function promptWrapper(text, callback) {
+		var n;
+		if (n=window.prompt(text)) return callback(n)
+	}
 	function outputPopup(text) {
 		var popupContainerDiv = document.createElement("div")
 		var popupDiv = document.createElement("div")
