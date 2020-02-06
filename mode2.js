@@ -1,8 +1,6 @@
 	var keyOffset = 60;
 	var middleNote = 60;
 
-	var textLeft = true;
-
 	var beatLength = 1;
 
 	var leftwidth = 0;
@@ -47,6 +45,10 @@
 
 	function isBlackKey(note) {
 		return [false,true,false,true,false,false,true,false,true,false,true,false][note % 12]
+	}
+
+	function isFirstOfTwoWhiteKeys(note) {
+		return [false,false,false,false,true,false,false,false,false,false,false,true][note % 12]
 	}
 
 	function noteToLetter(note) {
@@ -320,13 +322,16 @@
 				//var hrow = head.insertRow(0);
 				var hrow = noteTable.insertRow(0);
 				
-				if (textLeft) hrow.insertCell()//.className = "txtLeft"
+				hrow.insertCell()//.className = "txtLeft"
 				for (var i = 0; i < tableWidth; i++) {
 					var representedNote = i - leftwidth + middleNote
 					var c = hrow.insertCell()
 					if (representedNote==middleNote-1) {
 						var m = hrow.insertCell()
 						m.className = "m"
+					} else if (isFirstOfTwoWhiteKeys(representedNote)) {
+						var s = hrow.insertCell()
+						s.className = "s"
 					}
 					if (isBlackKey(representedNote)) c.className += " b"
 				}
@@ -334,21 +339,6 @@
 			}
 			++currentTableHeight;
 			var row = noteTable.insertRow();
-
-			var text = ""
-			var txt = null
-			if (texts[t]) text += texts[t]
-			if (chords[t]) text += " " + chords[t]
-			if (text) {
-				txt = document.createElement("pre")
-				txt.className = "txt"
-				txt.textContent = text
-			}
-			if (textLeft) {
-				var c = row.insertCell()
-				c.className = "txtLeft"
-				if (txt) c.appendChild(txt)
-			}
 
 			for (var i = 0; i < tableWidth; i++) {
 				var representedNote = i - leftwidth + middleNote
@@ -416,12 +406,26 @@
 				if (representedNote==middleNote-1) {
 					var m = row.insertCell()
 					m.className = "m"
+				} else if (isFirstOfTwoWhiteKeys(representedNote)) {
+					var s = row.insertCell()
+					s.className = "s"
 				}
 			}
 
-			if (txt && !textLeft) {
-				var c = document.createElement('td')
-				row.prepend(c)
+			var textLeft = document.createElement('td')
+			textLeft.className = "txtLeft"
+			row.prepend(textLeft)
+			if (chords[t]) {
+				txt = document.createElement("pre")
+				txt.className = "txt"
+				txt.textContent = chords[t]
+				textLeft.appendChild(txt)
+			}
+			if (texts[t]) {
+				txt = document.createElement("pre")
+				txt.className = "txt"
+				txt.textContent = texts[t]
+				var c = row.insertCell()
 				c.appendChild(txt)
 			}
 			needNewTable = false;
