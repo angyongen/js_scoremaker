@@ -432,3 +432,35 @@
 		}
 		outputContainer.appendChild(tableContainer);
 	}
+
+	function playNotes(ms_per_beat, noteOnCallback, noteOffCallback) {
+		var interval = ms_per_beat/beatLength;
+		var t = 0;
+		var expected = Date.now()// + interval;
+		var noteDurationsLeft = {} //key=note, value=time left
+		//setTimeout(step, interval);
+		var step = function() {
+			var overshoot = Date.now() - expected;
+
+			notesLeft = Object.keys(noteDurationsLeft)
+			for (var i = notesLeft.length - 1; i >= 0; i--) {
+				if (--noteDurationsLeft[notesLeft[i]] <= 0) {
+					noteOffCallback(notesLeft[i])
+					delete noteDurationsLeft[notesLeft[i]]
+				}
+			}
+			if (notes[t]) {
+				var newNotes = Object.keys(notes[t])
+				for (var i = newNotes.length - 1; i >= 0; i--) {
+					var newNote = newNotes[i]
+					noteDurationsLeft[newNote] = notes[t][newNote]
+					noteOnCallback(newNote)
+				}
+			}
+			++t;
+
+			expected += interval;
+			setTimeout(step, Math.max(0, interval - overshoot)); //self adjusting interval
+		}
+		step();
+	}
