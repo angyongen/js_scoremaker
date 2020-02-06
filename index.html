@@ -37,10 +37,16 @@ Underscores are entered before the note and dots are entered after the note.
 (Example: __1 is a quarter of the time of 1 and 1. is one and a half the time of 1)
 Triplet notes are entered using the letter t before the note (Example: t1t2t3)
 
-Slurs and ties are represented by the + symbol
+Slurs and ties are represented by the + symbol (Example 1+1 is a tie and 1+2 is a slur)
+However, slurs are not implemented yet and so they have no effect for now.
 
-A bar is represented by | and a break is /
-Text can be inserted using quotes at any time. (Example: "text")
+A bar is represented by | and a break is / (Example 1234|1234|/1234|1234)
+Note that automatic lines are added but they are designed for 4/4 songs. Other time signatures may look strange.
+
+Text can be inserted using quotes at any time. (Example: 1."text"+1). They appear on the right of the score.
+Chords can be added in brackets (Example [C#7]). They are treated as text but on the left hand side of the score.
+
+Note that, however, text and chords only shows up when there are notes (Example "text"1), and that when multiple texts or multiple chords are input together, only the last one is detected. (Examples "text1""text2" results in text2)
 </pre>
 </div></div>
 <button onclick="clearNotes()">Clear</button>

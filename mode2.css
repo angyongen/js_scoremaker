@@ -58,7 +58,8 @@
 		outline: 1px solid black;
 	}
 	.output-popup>div>pre {
-		overflow: scroll;
+		overflow-y: scroll;
+		white-space: pre-wrap;
 	}
 
 	.x b {
