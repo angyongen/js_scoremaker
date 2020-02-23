@@ -1,0 +1,123 @@
+<link rel="stylesheet" type="text/css" href=".\standard_notation.css">
+<script src=".\standard_notation.js"></script>
+<script>
+	function appendColumn(table, location) {
+		for (var i = table.rows.length - 1; i >= 0; i--) {
+			table.rows[i].insertCell(location)
+		}
+	}
+	function loopColumn(table, column, callback) {
+		var rows = table.rows.length;
+		for (var i = 0; i < rows; i++) {
+			callback(table.rows[i].cells[column])
+		}
+	}
+	function setColumnClass(table, column, className) {
+		loopColumn(table, column, function(e) {e.className = className})
+	}
+
+</script>
+<body>
+<table class="main" id="table">
+	<tr></tr>
+	<tr class="linespace"></tr>
+	<tr class="linespace"></tr>
+	<tr class="linespace"></tr>
+	<tr class="linespace"></tr>
+	<tr class="middle"></tr>
+	<tr class="middle division"></tr>
+	<tr class="middle"></tr>
+	<tr class="linespace"></tr>
+	<tr class="linespace"></tr>
+	<tr class="linespace"></tr>
+	<tr class="linespace"></tr>
+	<tr></tr>
+</table>
+<script>
+	var table = document.getElementById("table")
+	appendColumn(table, 0)
+	appendColumn(table, 0)
+	var lastHover1;
+	var lastHover2;
+	function selectable(cell) {
+		return cell && cell.tagName == "TD" && cell.className != "clefColumn" && !cell.parentNode.className.includes("division")
+	}
+	function resetHover() {
+		if (lastHover1) lastHover1.id = ""
+		if (lastHover2) lastHover2.id = ""
+		lastHover1 = undefined
+		lastHover2 = undefined
+	}
+	table.onmouseleave = function(e) {
+		resetHover()
+	}
+	table.onmousemove = function(e) {
+		resetHover()
+		var target = e.target 
+		if (target.tagName == "TD") {
+			var rect = target.getBoundingClientRect()
+			var quarter = rect.height/4
+			var y = e.clientY - rect.top
+			if (y<quarter) {
+				var prevTableRow = target.parentNode.previousElementSibling
+				if (prevTableRow) {
+					lastHover1 = prevTableRow.cells[target.cellIndex]
+					lastHover1.id = "hover_bottom"
+				}
+				target.id = "hover_top"
+				lastHover2 = target
+				if (!selectable(lastHover2)) {resetHover()}
+			} else if (y>3*quarter) {
+				target.id = "hover_bottom"
+				lastHover1 = target
+				var nextTableRow = target.parentNode.nextElementSibling
+				if (nextTableRow) {
+					lastHover2 = nextTableRow.cells[target.cellIndex]
+					lastHover2.id = "hover_top"
+				}
+				if (!selectable(lastHover2)) {resetHover()}
+			} else {
+				target.id = "hover_middle"
+				lastHover1 = target
+			}
+			if (!selectable(lastHover1)) {resetHover()}
+		} else {
+		}
+	}
+	var inputNoteType = 3
+	table.onclick = function(e) {
+		//var table = lastHover1.parentNode.parentNode
+		var note = e.target.closest("td>div")
+		if (note) {
+			var cell = note.parentNode
+			cell.removeChild(note)
+			updateColumn(table, cell.cellIndex)
+		} else {
+			if (lastHover1) {
+				if (selectable(lastHover1)) {
+					var position = lastHover1.cellIndex
+
+					if (putNote(table, position, lastHover1, inputNoteType, !!lastHover2)) {
+						updateColumn(table, position)
+						if (lastHover1.className != "x") {
+							setColumnClass(table, position, "x")
+							appendColumn(table, position+1)
+							appendColumn(table, position)
+						}
+					}
+
+				}
+			}
+		}
+		table.onmousemove(e)
+	}
+	table.rows[3].cells[0].appendChild(createTrebleClef())
+	setColumnClass(table, 0, "clefColumn")
+	/*
+    for (var r = 0, n = table.rows.length; r < n; r++) {
+        for (var c = 0, m = table.rows[r].cells.length; c < m; c++) {
+            //alert(table.rows[r].cells[c].innerHTML);
+        }
+    }*/
+</script>
+<body>
